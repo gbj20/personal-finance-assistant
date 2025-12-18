@@ -295,7 +295,7 @@
             if (!valid) return;
 
             try {
-                const res = await fetch('https://personal-finance-assistant-dqjm.onrender.com/signup', {
+                const res = await fetch("https://personal-finance-assistant-dqjm.onrender.com/signup", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ firstName: firstName.value.trim(), lastName: lastName.value.trim(), email: email.value.trim(), password: password.value.trim() })
