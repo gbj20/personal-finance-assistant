@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions</title>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* ========== Sidebar ========== */
+        .sidebar {
+            width: 200px;
+            background: #1632a0;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            overflow-y: auto;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            margin: 10px 0;
+            display: block;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .sidebar a:hover {
+            background: #0f2273;
+        }
+
+
+        .main {
+            margin-left: 230px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+
+
+        /* Topbar */
+        .topbar {
+            background: linear-gradient(90deg, #5978c8, #0a217b);
+            padding: 15px 20px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            color: #1632a0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            color: #34495e;
+            min-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown div {
+            margin: 6px 0;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        h2 {
+            color: #f9f9f9;
+        }
+
+        .section-title {
+            margin-top: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #e04d09;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #1632a0;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        tfoot td {
+            font-weight: bold;
+            background: #e6f7ff;
+        }
+
+        select,
+        input[type="text"],
+        input[type="number"] {
+            padding: 6px 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 6px;
+            background: #1632a0;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0f2273;
+        }
+
+        /* ===== Dark Mode ===== */
+        body.dark .sidebar {
+            background: #1e1e2f;
+        }
+
+        body.dark .sidebar a {
+            background: #333;
+            color: #f5f5f5;
+        }
+
+        body.dark .sidebar a:hover {
+            background: #821a1a;
+        }
+
+        body.dark .topbar {
+            background: linear-gradient(90deg, #0d3a2f, #0d1a5e);
+        }
+
+        body.dark {
+            background: #1e1e1e;
+            color: #f1f1f1;
+        }
+
+        body.dark h2,
+        body.dark .section-title {
+            color: #1abc9c;
+        }
+
+        body.dark table {
+            background: #2b2b2b;
+            color: #f1f1f1;
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark th {
+            background: #747029;
+            color: #fff;
+        }
+
+        body.dark tr:nth-child(even) {
+            background: #333;
+        }
+
+        body.dark tr:hover {
+            background: #444;
+        }
+
+        body.dark tfoot td {
+            background: #109a65;
+            color: #fff;
+        }
+
+        body.dark select,
+        body.dark input,
+        body.dark button {
+            background: #2b2b2b;
+            color: #fff;
+            border: 1px solid #666;
+        }
+
+        body.dark .profile-dropdown {
+            background: #2c2c2c;
+            color: #f5f5f5;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Finance Dashboard</h2>
+        <a href="dashboard.html">🏠 Dashboard</a>
+        <a href="transactions.html">💳 Transactions</a>
+        <a href="debt_tracker.html">💰 Debt Tracker</a>
+        <a href="budget_planner.html">📊 Budget Planner</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="index.html" id="logout">🚪 Logout</a>
+    </div>
+
+    <!-- Main Section -->
+    <div class="main">
+        <div class="topbar">
+            <div>💳 Transactions</div>
+            <div class="user-profile" id="profile">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <div id="dropdown-name">User Name</div>
+                    <div id="dropdown-email">user@example.com</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Add Expense -->
+            <div class="section-title">Add Expense</div>
+            <form id="expenseForm">
+                <input type="text" id="expenseName" placeholder="Expense Name" required>
+                <input type="number" id="expenseAmount" placeholder="Amount" required>
+                <select id="expenseMonth">
+                    <option value="Jan">Jan</option>
+                    <option value="Feb">Feb</option>
+                    <option value="Mar">Mar</option>
+                    <option value="Apr">Apr</option>
+                    <option value="May">May</option>
+                    <option value="Jun">Jun</option>
+                    <option value="Jul">Jul</option>
+                    <option value="Aug">Aug</option>
+                    <option value="Sep">Sep</option>
+                    <option value="Oct">Oct</option>
+                    <option value="Nov">Nov</option>
+                    <option value="Dec">Dec</option>
+                </select>
+                <button type="submit">Add Expense</button>
+            </form>
+
+            <!-- Salary Table -->
+            <div class="section-title">Salary</div>
+            <table id="salaryTable">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <td>Total Salary</td>
+                        <td id="totalSalary">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Expenses Table -->
+            <div class="section-title">Expenses</div>
+            <label for="monthFilter">Filter by Month:</label>
+            <select id="monthFilter">
+                <option value="all">All Months</option>
+            </select>
+
+            <table id="expensesTable">
+                <thead>
+                    <tr>
+                        <th>Expense Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <td>Total Expenses</td>
+                        <td id="totalExpenses">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Savings Table -->
+            <div class="section-title">Savings</div>
+            <table id="savingsTable">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Savings</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <td>Total Savings</td>
+                        <td id="totalSavings">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ----------- User Info -------------
+        const storedUser = localStorage.getItem("user");
+        if (!storedUser) window.location.href = "index.html";
+
+        const user = JSON.parse(storedUser);
+        const userEmail = user.email;
+        document.getElementById("dropdown-name").textContent = user.name || "User";
+        document.getElementById("dropdown-email").textContent = user.email || "user@example.com";
+        document.getElementById("user-avatar").textContent = (user.name ? user.name[0] : "U").toUpperCase();
+
+        // Logout
+        document.getElementById("logout").addEventListener("click", () => {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
+        });
+
+        // Profile dropdown toggle
+        const profile = document.getElementById("profile");
+        const dropdown = document.getElementById("profile-dropdown");
+        profile.addEventListener("click", () => dropdown.classList.toggle("show"));
+        window.addEventListener("click", (e) => {
+            if (!profile.contains(e.target)) dropdown.classList.remove("show");
+        });
+
+        // ----------- Load Transactions -------------
+        const allData = JSON.parse(localStorage.getItem("graphData")) || {};
+        const data = allData[userEmail] || { salaries: [], expenses: [] };
+
+        // -------- Salary --------
+        const salaryBody = document.querySelector("#salaryTable tbody");
+        let totalSalary = 0;
+        data.salaries.forEach(s => {
+            const row = `<tr><td>${s.month}</td><td>${s.salary}</td></tr>`;
+            salaryBody.innerHTML += row;
+            totalSalary += parseFloat(s.salary);
+        });
+        document.getElementById("totalSalary").textContent = totalSalary;
+
+        // -------- Expenses --------
+        const expensesBody = document.querySelector("#expensesTable tbody");
+        const monthFilter = document.getElementById("monthFilter");
+
+        const months = [...new Set([...data.salaries.map(s => s.month), ...data.expenses.map(e => e.month)])];
+        months.forEach(m => {
+            const option = document.createElement("option");
+            option.value = m;
+            option.textContent = m;
+            monthFilter.appendChild(option);
+        });
+
+        function renderExpenses(month = "all") {
+            expensesBody.innerHTML = "";
+            let totalExpenses = 0;
+            const filtered = month === "all" ? data.expenses : data.expenses.filter(e => e.month === month);
+            filtered.forEach(e => {
+                const row = `<tr><td>${e.name}</td><td>${e.amount}</td></tr>`;
+                expensesBody.innerHTML += row;
+                totalExpenses += parseFloat(e.amount);
+            });
+            document.getElementById("totalExpenses").textContent = totalExpenses;
+
+            renderSavings(month);
+        }
+
+        // -------- Savings --------
+        const savingsBody = document.querySelector("#savingsTable tbody");
+        function renderSavings(month = "all") {
+            savingsBody.innerHTML = "";
+            let totalSavings = 0;
+            const monthsToShow = month === "all" ? months : [month];
+            monthsToShow.forEach(m => {
+                const salaryMonth = data.salaries.find(s => s.month === m)?.salary || 0;
+                const expenseMonth = data.expenses.filter(e => e.month === m).reduce((acc, e) => acc + parseFloat(e.amount), 0);
+                const saving = salaryMonth - expenseMonth;
+                totalSavings += saving;
+                const row = `<tr><td>${m}</td><td>${saving}</td></tr>`;
+                savingsBody.innerHTML += row;
+            });
+            document.getElementById("totalSavings").textContent = totalSavings;
+        }
+
+        // Initial render
+        renderExpenses();
+
+        // Dropdown filter change
+        monthFilter.addEventListener("change", () => {
+            renderExpenses(monthFilter.value);
+        });
+
+        // -------- Add Expense Form --------
+        document.getElementById("expenseForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const expenseName = document.getElementById("expenseName").value;
+            const expenseAmount = parseFloat(document.getElementById("expenseAmount").value);
+            const expenseMonth = document.getElementById("expenseMonth").value;
+
+            // Save in user-specific graphData
+            const allData = JSON.parse(localStorage.getItem("graphData")) || {};
+            const userData = allData[userEmail] || { salaries: [], expenses: [] };
+            userData.expenses.push({ name: expenseName, amount: expenseAmount, month: expenseMonth });
+            allData[userEmail] = userData;
+            localStorage.setItem("graphData", JSON.stringify(allData));
+
+            // Save in global 'expenses' for budget_planner.html
+            const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+            expenses.push({ name: expenseName, amount: expenseAmount, month: expenseMonth });
+            localStorage.setItem("expenses", JSON.stringify(expenses));
+
+            // Reset form
+            this.reset();
+
+            // Re-render tables
+            renderExpenses(monthFilter.value);
+        });
+
+        // ===== Theme Apply =====
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "light";
+            document.body.classList.toggle("dark", theme === "dark");
+        }
+        applyTheme();
+    </script>
+    <script src="common.js"></script>
+
+</body>
+
+</html>

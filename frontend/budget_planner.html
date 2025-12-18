@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Planner</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ===== Base Styling ===== */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            background: #f0f4f8;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            width: 200px;
+            background: #1632a0;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: white;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #0f2273;
+        }
+
+        /* ===== Main Content ===== */
+        .main {
+            flex: 1;
+            margin-left: 240px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, #5978c8, #0a217b);
+            padding: 15px 20px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            color: #1632a0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            color: #34495e;
+            min-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown div {
+            margin: 6px 0;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        h3 {
+            color: #1632a0;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #1632a0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #14987d;
+        }
+
+        button.clear-btn {
+            background: #df6069;
+            margin-left: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        table th {
+            background: #1632a0;
+            color: white;
+        }
+
+        .remaining-positive {
+            color: green;
+            font-weight: bold;
+        }
+
+        .remaining-negative {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* ===== Dark Mode ===== */
+        body.dark {
+            background: #1e1e1e;
+            color: #f1f1f1;
+        }
+
+        body.dark .sidebar {
+            background: #1e1e2f;
+        }
+
+        body.dark .sidebar a {
+            color: #f5f5f5;
+            background: #2b2b2b;
+        }
+
+        body.dark .sidebar a:hover {
+            background: #1abc9c;
+        }
+
+        body.dark .card {
+            background: #2b2b2b;
+            color: #f1f1f1;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark table th {
+            background: #3a3a5e;
+            color: white;
+        }
+
+        body.dark table td {
+            color: #f1f1f1;
+            border-color: #444;
+        }
+
+        body.dark button {
+            background: #1abc9c;
+            color: white;
+        }
+
+        body.dark button.clear-btn {
+            background: #e74c3c;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Finance Dashboard</h2>
+        <a href="dashboard.html">🏠 Dashboard</a>
+        <a href="transactions.html">💳 Transactions</a>
+        <a href="debt_tracker.html">💰 Debt Tracker</a>
+        <a href="budget_planner.html">📊 Budget Planner</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="index.html" id="logout">🚪 Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>📊 Budget Planner</div>
+            <div class="user-profile" id="profile">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <div id="dropdown-name">User Name</div>
+                    <div id="dropdown-email">user@example.com</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Budget Form -->
+            <div class="card">
+                <h3>➕ Set Budget</h3>
+                <div class="form-group">
+                    <label for="budget-category">Category</label>
+                    <select id="budget-category" onchange="toggleOtherCategory()">
+                        <option value="Food">Food</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="other-category" placeholder="Enter Category"
+                        style="display:none; margin-top:6px;">
+                </div>
+                <div class="form-group">
+                    <label for="budget-month">Month</label>
+                    <select id="budget-month">
+                        <option value="Jan">Jan</option>
+                        <option value="Feb">Feb</option>
+                        <option value="Mar">Mar</option>
+                        <option value="Apr">Apr</option>
+                        <option value="May">May</option>
+                        <option value="Jun">Jun</option>
+                        <option value="Jul">Jul</option>
+                        <option value="Aug">Aug</option>
+                        <option value="Sep">Sep</option>
+                        <option value="Oct">Oct</option>
+                        <option value="Nov">Nov</option>
+                        <option value="Dec">Dec</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="budget-amount">Budget Amount</label>
+                    <input type="number" id="budget-amount" placeholder="Enter budget">
+                </div>
+                <button onclick="addBudget()">Save Budget</button>
+                <button class="clear-btn" onclick="clearBudgets()">Clear Budgets</button>
+            </div>
+
+            <!-- Budget Table -->
+            <div class="card">
+                <h3>📋 Budget vs Actual Expenses</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Month</th>
+                            <th>Budget</th>
+                            <th>Actual</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="budgetTable"></tbody>
+                </table>
+            </div>
+
+            <!-- Budget Chart -->
+            <div class="card">
+                <h3>📊 Budget vs Actual Chart</h3>
+                <canvas id="budgetChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Theme =====
+        function applyTheme() {
+            const theme = localStorage.getItem("theme") || "light";
+            document.body.classList.toggle("dark", theme === "dark");
+        }
+        applyTheme();
+
+        // ===== User Profile =====
+        const userName = localStorage.getItem("userName") || "User Name";
+        const userEmail = localStorage.getItem("userEmail") || "user@example.com";
+        document.getElementById("dropdown-name").innerText = userName;
+        document.getElementById("dropdown-email").innerText = userEmail;
+        document.getElementById("user-avatar").innerText = userName.charAt(0).toUpperCase();
+
+        document.getElementById("profile").addEventListener("click", () => {
+            document.getElementById("profile-dropdown").classList.toggle("show");
+        });
+
+        // ===== Storage Helpers =====
+        const getBudgets = () => JSON.parse(localStorage.getItem("budgets")) || [];
+        const saveBudgets = (budgets) => localStorage.setItem("budgets", JSON.stringify(budgets));
+        const getExpenses = () => JSON.parse(localStorage.getItem("expenses")) || [];
+
+        // ===== Toggle Other Category Input =====
+        function toggleOtherCategory() {
+            const categorySelect = document.getElementById("budget-category");
+            const otherInput = document.getElementById("other-category");
+            if (categorySelect.value === "Other") {
+                otherInput.style.display = "block";
+            } else {
+                otherInput.style.display = "none";
+                otherInput.value = "";
+            }
+        }
+
+        // ===== Budget Functions =====
+        let chartInstance;
+        function addBudget() {
+            let category = document.getElementById("budget-category").value;
+            const otherInput = document.getElementById("other-category").value.trim();
+            if (category === "Other" && otherInput) {
+                category = otherInput;
+            }
+            const month = document.getElementById("budget-month").value;
+            const amount = Number(document.getElementById("budget-amount").value);
+            if (!amount || amount <= 0) return alert("Enter a valid amount");
+
+            const budgets = getBudgets();
+            budgets.push({ category, month, amount });
+            saveBudgets(budgets);
+
+            document.getElementById("budget-amount").value = "";
+            document.getElementById("other-category").value = "";
+            document.getElementById("other-category").style.display = "none";
+
+            loadBudgets();
+        }
+
+        function clearBudgets() {
+            if (confirm("Are you sure you want to clear all budgets?")) {
+                localStorage.removeItem("budgets");
+                loadBudgets();
+                alert("All budgets cleared!");
+            }
+        }
+
+        function loadBudgets() {
+            const budgets = getBudgets();
+            const expenses = getExpenses();
+            const tableBody = document.getElementById("budgetTable");
+            tableBody.innerHTML = "";
+
+            const chartLabels = [];
+            const chartBudgets = [];
+            const chartActuals = [];
+
+            budgets.forEach(budget => {
+                const actual = expenses
+                    .filter(e => e.month === budget.month && e.name.toLowerCase() === budget.category.toLowerCase())
+                    .reduce((sum, e) => sum + e.amount, 0);
+                const remaining = budget.amount - actual;
+                const status = remaining >= 0 ? "Within Budget" : "Over Budget";
+
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${budget.category}</td>
+                        <td>${budget.month}</td>
+                        <td>₹${budget.amount}</td>
+                        <td>₹${actual}</td>
+                        <td class="${remaining >= 0 ? 'remaining-positive' : 'remaining-negative'}">${status}</td>
+                    </tr>
+                `;
+
+                chartLabels.push(`${budget.category} (${budget.month})`);
+                chartBudgets.push(budget.amount);
+                chartActuals.push(actual);
+            });
+
+            renderChart(chartLabels, chartBudgets, chartActuals);
+        }
+
+        function renderChart(labels, budgets, actuals) {
+            const ctx = document.getElementById("budgetChart").getContext("2d");
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [
+                        { label: "Budget", data: budgets, backgroundColor: "#1632a0" },
+                        { label: "Actual", data: actuals, backgroundColor: "#e74c3c" }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: "top" } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // ===== Real-time Sync with transactions.html =====
+        window.addEventListener('storage', function (event) {
+            if (event.key === 'expenses' || event.key === 'theme') {
+                if (event.key === 'theme') applyTheme();
+                loadBudgets();
+            }
+        });
+
+        // ===== Initialize =====
+        loadBudgets();
+    </script>
+    <script src="common.js"></script>
+</body>
+
+</html>

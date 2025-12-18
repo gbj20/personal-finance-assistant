@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f0f4f8;
+            color: #111010;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(90deg, #1abc9c, #1632a0);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+        }
+
+        .hero {
+            height: 60vh;
+            background: url('https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero p {
+            max-width: 700px;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: #1abc9c;
+            padding: 14px 30px;
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background: #16a085;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 50px 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card img {
+            width: 60px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #1632a0;
+        }
+
+        .feature-card p {
+            flex-grow: 1;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            background: #1632a0;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 30px;
+        }
+
+        /* ==== Modal Styling ==== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #1632a0;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .modal-content .btn-primary {
+            background: #1abc9c;
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+
+        .close-btn {
+            margin-top: 15px;
+            display: inline-block;
+            background: #e74c3c;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .close-btn:hover {
+            background: #c0392b;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>💰 Finance Tracker</h1>
+        <p>Your personal finance assistant</p>
+    </header>
+
+    <section class="hero">
+        <h2>Track. Manage. Save.</h2>
+        <p>Stay in control of your money with smart tracking of expenses, debts, and savings — all in one place.</p>
+        <a href="login.html" class="btn-primary">🚀 Get Started</a>
+    </section>
+
+    <section class="features">
+        <div class="feature-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/2331/2331941.png" alt="Dashboard">
+            <h3>Dashboard</h3>
+            <p>Get a bird’s eye view of your finances with charts and summaries.</p>
+            <a href="dashboard.html" class="btn-primary feature-link">Go to Dashboard</a>
+        </div>
+
+        <div class="feature-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/942/942748.png" alt="Transactions">
+            <h3>Transactions</h3>
+            <p>Log and track all your spending and income in one place.</p>
+            <a href="transactions.html" class="btn-primary feature-link">Go to Transactions</a>
+        </div>
+
+        <div class="feature-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/3349/3349238.png" alt="Debt Tracker">
+            <h3>Debt Tracker</h3>
+            <p>Monitor your debts and loans with easy-to-read reports.</p>
+            <a href="debt_tracker.html" class="btn-primary feature-link">Go to Debt Tracker</a>
+        </div>
+
+        <div class="feature-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/3524/3524636.png" alt="Settings">
+            <h3>Settings</h3>
+            <p>Personalize your experience with theme and profile settings.</p>
+            <a href="settings.html" class="btn-primary feature-link">Go to Settings</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 Finance Tracker | Designed by Gayatri Jadhav</p>
+    </footer>
+
+    <!-- Modal -->
+     
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h3>⚠️ Access Denied</h3>
+            <p>Please login/signup first — click "Get Started".</p>
+            <a href="login.html" class="btn-primary">🚀 Get Started</a>
+            <div class="close-btn" id="closeModal">Close</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const loggedIn = localStorage.getItem("loggedIn") === "true";
+            const modal = document.getElementById("loginModal");
+            const closeBtn = document.getElementById("closeModal");
+
+            // Redirect "Get Started" if logged in
+            if (loggedIn) {
+                window.location.href = "dashboard.html";
+            }
+
+            // Protect feature links from unauthorized access
+            const featureLinks = document.querySelectorAll(".feature-link");
+            featureLinks.forEach(link => {
+                link.addEventListener("click", (e) => {
+                    if (!loggedIn) {
+                        e.preventDefault();
+                        modal.style.display = "flex"; // Show modal
+                    }
+                });
+            });
+
+            // Close modal
+            closeBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+            });
+
+            // Close modal if clicked outside content
+            window.addEventListener("click", (e) => {
+                if (e.target === modal) {
+                    modal.style.display = "none";
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

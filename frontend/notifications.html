@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #1632a0;
+            margin-bottom: 20px;
+        }
+
+        #notifList {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid #1abc9c;
+            position: relative;
+            transition: transform 0.3s, opacity 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification p {
+            margin: 0;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .notification small {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .notification:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .no-notif {
+            font-size: 15px;
+            color: #555;
+            padding: 15px;
+            background: #fff;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🔔 Notifications</h2>
+    <div id="notifList"></div>
+
+    <script>
+        let notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+
+        const container = document.getElementById("notifList");
+
+        function renderNotifications() {
+            container.innerHTML = "";
+            if (notifications.length === 0) {
+                container.innerHTML = `<div class="no-notif">No new notifications 🎉</div>`;
+            } else {
+                notifications.forEach((n, index) => {
+                    const div = document.createElement("div");
+                    div.className = "notification";
+                    div.innerHTML = `
+                        <div>
+                            <p>${n.message}</p>
+                            <small>${n.time}</small>
+                        </div>
+                        <button class="close-btn" onclick="removeNotification(${index})">&times;</button>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function removeNotification(index) {
+            // Remove from array
+            notifications.splice(index, 1);
+            // Update localStorage
+            localStorage.setItem("notifications", JSON.stringify(notifications));
+            // Re-render
+            renderNotifications();
+        }
+
+        // Initial render
+        renderNotifications();
+    </script>
+</body>
+
+</html>

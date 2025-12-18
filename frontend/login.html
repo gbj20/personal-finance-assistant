@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Screen Login/Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body,
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #121212;
+        }
+
+        /* Video full screen */
+        #video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: black;
+        }
+
+        #video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 1s ease;
+        }
+
+        /* Split screen container */
+        #split-container {
+            display: flex;
+            width: 80%;
+            max-width: 1000px;
+            height: 600px;
+            max-height: 90%;
+            background: #1E1E2F;
+            border-radius: 20px;
+            overflow: hidden;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: all 1s ease;
+            z-index: 5;
+        }
+
+        #split-container.show {
+            opacity: 1;
+        }
+
+        /* Left video/image */
+        #left-side {
+            flex: 1;
+            background: black;
+            position: relative;
+        }
+
+        #left-side video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Right login form */
+        #right-side {
+            flex: 1;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #2B2B3D;
+            color: white;
+        }
+
+        #right-side h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        #right-side p {
+            font-size: 14px;
+            margin-bottom: 30px;
+            color: #bbb;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 12px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            background: #3A3A50;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .input-group input::placeholder {
+            color: #aaa;
+        }
+
+        .error-msg {
+            color: #ff4d4d;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .success-msg {
+            color: #4CAF50;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        button {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #6B63FF;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #7F74FF;
+            box-shadow: 0 0 10px #7F74FF;
+        }
+
+        #login-form {
+            display: none;
+            flex-direction: column;
+        }
+
+        @media(max-width:900px) {
+            #split-container {
+                flex-direction: column;
+                height: auto;
+                max-height: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Fullscreen video first -->
+    <div id="video-container">
+        <video src="man-walking-with-office-bag-animation.mp4" autoplay muted></video>
+    </div>
+
+    <!-- Split screen container -->
+    <div id="split-container">
+        <div id="left-side">
+            <video src="man-walking-with-office-bag-animation.mp4" autoplay muted loop></video>
+        </div>
+        <div id="right-side">
+            <h2 id="form-title">Create an account</h2>
+            <p id="switch-form-text">Already have an account? <a href="#" id="login-link" style="color:#6B63FF;">Log
+                    in</a></p>
+
+            <div id="forms-container">
+                <!-- Signup Form -->
+                <div id="signup-form">
+                    <div class="input-group"><input type="text" placeholder="First Name">
+                        <p class="error-msg"></p>
+                    </div>
+                    <div class="input-group"><input type="text" placeholder="Last Name">
+                        <p class="error-msg"></p>
+                    </div>
+                    <div class="input-group"><input type="email" placeholder="Email">
+                        <p class="error-msg"></p>
+                    </div>
+                    <div class="input-group"><input type="password" placeholder="Password">
+                        <p class="error-msg"></p>
+                    </div>
+                    <div><input type="checkbox" id="terms"><label for="terms"> I agree to Terms & Conditions</label>
+                    </div>
+                    <p class="success-msg" id="signup-success"></p>
+                    <button id="signup-btn">Create Account</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form">
+                    <div class="input-group"><input type="email" placeholder="Email">
+                        <p class="error-msg"></p>
+                    </div>
+                    <div class="input-group"><input type="password" placeholder="Password">
+                        <p class="error-msg"></p>
+                    </div>
+                    <p class="success-msg" id="login-success"></p>
+                    <button id="login-btn">Login</button>
+                    <p style="margin-top:10px; color:#bbb;">Don't have an account? <a href="#" id="signup-link"
+                            style="color:#6B63FF;">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show split screen after 3 seconds
+        setTimeout(() => {
+            document.getElementById('video-container').style.display = 'none';
+            document.getElementById('split-container').classList.add('show');
+        }, 3000);
+
+        // Form switching
+        const signupForm = document.getElementById('signup-form');
+        const loginForm = document.getElementById('login-form');
+        const formTitle = document.getElementById('form-title');
+
+        signupForm.style.display = 'flex';
+        signupForm.style.flexDirection = 'column';
+        loginForm.style.display = 'none';
+        loginForm.style.flexDirection = 'column';
+
+        document.getElementById('login-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.style.display = 'none';
+            loginForm.style.display = 'flex';
+            formTitle.textContent = 'Log in';
+        });
+
+        document.getElementById('signup-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            signupForm.style.display = 'flex';
+            formTitle.textContent = 'Create an account';
+        });
+
+        // Validation helpers
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        function isStrongPassword(password) {
+            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
+        }
+        function showError(input, msg) {
+            const error = input.parentElement.querySelector(".error-msg");
+            error.textContent = msg;
+            error.style.display = "block";
+        }
+        function clearErrors(form) {
+            form.querySelectorAll(".error-msg").forEach(e => { e.textContent = ""; e.style.display = "none"; });
+            form.querySelectorAll(".success-msg").forEach(e => { e.textContent = ""; e.style.display = "none"; });
+        }
+
+        // ================== SIGNUP ==================
+        document.getElementById('signup-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            clearErrors(signupForm);
+
+            const inputs = signupForm.querySelectorAll("input");
+            const [firstName, lastName, email, password] = inputs;
+            const terms = document.getElementById('terms');
+            let valid = true;
+
+            if (!firstName.value.trim()) { showError(firstName, "First name is required"); valid = false; }
+            if (!lastName.value.trim()) { showError(lastName, "Last name is required"); valid = false; }
+            if (!isValidEmail(email.value.trim())) { showError(email, "Enter a valid email"); valid = false; }
+            if (!isStrongPassword(password.value.trim())) {
+                showError(password, "Password must be 8+ chars with uppercase, number & special char");
+                valid = false;
+            }
+            if (!terms.checked) { alert("You must agree to Terms & Conditions"); valid = false; }
+
+            if (!valid) return;
+
+            try {
+                const res = await fetch('http://localhost:5000/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName: firstName.value.trim(), lastName: lastName.value.trim(), email: email.value.trim(), password: password.value.trim() })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const msg = document.getElementById("signup-success");
+                    msg.textContent = "Signup successful. Please log in.";
+                    msg.style.display = "block";
+                    signupForm.style.display = 'none';
+                    loginForm.style.display = 'flex';
+                    formTitle.textContent = 'Log in';
+                } else {
+                    showError(email, data.message || "Signup failed");
+                }
+            } catch {
+                showError(email, "Server error. Try again later.");
+            }
+        });
+
+        // ================== LOGIN ==================
+        document.getElementById('login-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            clearErrors(loginForm);
+
+            const inputs = loginForm.querySelectorAll("input");
+            const [email, password] = inputs;
+            let valid = true;
+
+            if (!isValidEmail(email.value.trim())) { showError(email, "Enter a valid email"); valid = false; }
+            if (!password.value.trim()) { showError(password, "Password is required"); valid = false; }
+
+            if (!valid) return;
+
+            try {
+                const res = await fetch('http://localhost:5000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email.value.trim(), password: password.value.trim() })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    document.getElementById("login-success").textContent = "Login successful. Redirecting...";
+                    document.getElementById("login-success").style.display = "block";
+                    setTimeout(() => window.location.href = "dashboard.html", 1000);
+                } else {
+                    showError(password, data.message || "Invalid login credentials");
+                }
+            } catch {
+                showError(password, "Server error. Try again later.");
+            }
+        });
+    </script>
+</body>
+
+</html>

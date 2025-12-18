@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salary & Expenses Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* ========== Global Styles ========== */
+    :root {
+      --primary: #5978c8;
+      --primary-dark: #16a085;
+      --accent: #0a217b;
+      --danger: #e74c3c;
+      --danger-dark: #c0392b;
+      --light-bg: #f0f4f8;
+      --dark-bg: #121212;
+      --light-card: #fff;
+      --dark-card: #1f1f1f;
+      --light-text: #333;
+      --dark-text: #f5f5f5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background: var(--light-bg);
+      color: var(--light-text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
+
+    /* ========== Sidebar ========== */
+    .sidebar {
+      width: 240px;
+      background: #1632a0;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      margin: 10px 0;
+      display: block;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .sidebar a:hover {
+      background: #0f2273;
+    }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    /* .sidebar a:hover {
+      background: var(--primary);
+    } */
+
+    /* ========== Main Layout ========== */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      padding: 15px 20px;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* Notifications */
+    .icon {
+      position: relative;
+      text-decoration: none;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .icon span {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: red;
+      color: #fff;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+    }
+
+    /* User Profile */
+    .user-profile {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--accent);
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .profile-dropdown {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--light-card);
+      color: var(--light-text);
+      min-width: 200px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 10px;
+      z-index: 1000;
+    }
+
+    body.dark .profile-dropdown {
+      background: var(--dark-card);
+      color: var(--dark-text);
+    }
+
+    .profile-dropdown span {
+      display: block;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+
+    .profile-dropdown.show {
+      display: block;
+    }
+
+    .profile-dropdown button {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 8px;
+      transition: 0.3s;
+    }
+
+    .profile-dropdown button:hover {
+      background: var(--danger-dark);
+    }
+
+    /* ========== Content ========== */
+    .content {
+      padding: 20px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--light-card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark .card {
+      background: var(--dark-card);
+      color: var(--dark-text);
+    }
+
+    .card h3 {
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input,
+    select {
+      padding: 8px;
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+    }
+
+    canvas {
+      max-width: 100%;
+      min-height: 250px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Finance Dashboard</h2>
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="transactions.html">💳 Transactions</a>
+    <a href="debt_tracker.html">💰 Debt Tracker</a>
+    <a href="budget_planner.html">📊 Budget Planner</a>
+    <a href="settings.html">⚙️ Settings</a>
+    <a href="index.html" id="logout">🚪 Logout</a>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>Welcome to Salary Dashboard</div>
+      <div class="topbar-right">
+        <a href="notifications.html" class="icon">🔔 <span id="notifCount">0</span></a>
+        <div class="user-profile" id="profile">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="profile-dropdown" id="profile-dropdown">
+            <span id="dropdown-name">User Name</span>
+            <span id="dropdown-email">user@example.com</span>
+            <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
+            <button onclick="resetData()">🧹 Clear Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Salary Card -->
+      <div class="card">
+        <h3>💰 Salary & Savings</h3>
+        <div class="form-group">
+          <label for="salary-month">Month</label>
+          <input type="text" id="salary-month" placeholder="e.g. Jan, Feb">
+        </div>
+        <div class="form-group">
+          <label for="salary-amount">Salary</label>
+          <input type="number" id="salary-amount" placeholder="Enter amount">
+        </div>
+        <div class="form-group">
+          <label for="savings-amount">Savings</label>
+          <input type="number" id="savings-amount" placeholder="Enter savings">
+        </div>
+        <button onclick="addSalary()">Add Salary & Savings</button>
+
+        <h4 style="margin-top:20px;">📊 Salary vs Savings</h4>
+        <canvas id="salaryChart"></canvas>
+      </div>
+
+      <!-- Expense Card -->
+      <div class="card">
+        <h3>💸 Expenses</h3>
+        <div class="form-group">
+          <label for="expense-name">Expense Name</label>
+          <input type="text" id="expense-name" placeholder="e.g. Rent, Groceries">
+        </div>
+        <div class="form-group">
+          <label for="expense-amount">Amount</label>
+          <input type="number" id="expense-amount" placeholder="Enter amount">
+        </div>
+        <div class="form-group">
+          <label for="expense-month">Month</label>
+          <input type="text" id="expense-month" placeholder="e.g. Jan, Feb">
+        </div>
+        <button onclick="addExpense()">Add Expense</button>
+
+        <h4 style="margin-top:20px;">📉 Expenses Overview</h4>
+        <div class="form-group">
+          <label for="expenses-month">Filter Month</label>
+          <select id="expenses-month" onchange="loadCharts()">
+            <option value="All">All</option>
+            <option value="Jan">Jan</option>
+            <option value="Feb">Feb</option>
+            <option value="Mar">Mar</option>
+            <option value="Apr">Apr</option>
+            <option value="May">May</option>
+            <option value="Jun">Jun</option>
+            <option value="Jul">Jul</option>
+            <option value="Aug">Aug</option>
+            <option value="Sep">Sep</option>
+            <option value="Oct">Oct</option>
+            <option value="Nov">Nov</option>
+            <option value="Dec">Dec</option>
+          </select>
+        </div>
+        <canvas id="expensesChart"></canvas>
+      </div>
+
+      <!-- Savings Card -->
+      <div class="card">
+        <h3>💾 Savings Over Months</h3>
+        <canvas id="savingsChart"></canvas>
+      </div>
+
+    </div>
+
+    <script>
+      /* ================= USER HANDLING ================= */
+      document.addEventListener("DOMContentLoaded", () => {
+        if (localStorage.getItem("theme") === "dark") {
+          document.body.classList.add("dark");
+        }
+      });
+
+      const storedUser = localStorage.getItem("user");
+      let userEmail = "guest@example.com";
+
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        userEmail = user.email || "guest@example.com";
+
+        const initials = user.name ? user.name.charAt(0).toUpperCase() : "U";
+        document.getElementById("user-avatar").textContent = initials;
+        document.getElementById("dropdown-name").textContent = user.name || "User";
+        document.getElementById("dropdown-email").textContent = user.email || "user@example.com";
+      } else {
+        window.location.href = "index.html";
+      }
+
+      /* ================= PROFILE DROPDOWN ================= */
+      const profile = document.getElementById("profile");
+      const dropdown = document.getElementById("profile-dropdown");
+      profile.addEventListener("click", () => dropdown.classList.toggle("show"));
+      window.addEventListener("click", (e) => {
+        if (!profile.contains(e.target)) dropdown.classList.remove("show");
+      });
+
+      /* ================= LOCALSTORAGE HELPERS ================= */
+      function getUserData() {
+        const allData = JSON.parse(localStorage.getItem("graphData")) || {};
+        return allData[userEmail] || { expenses: [], salaries: [] };
+      }
+
+      function saveUserData(data) {
+        const allData = JSON.parse(localStorage.getItem("graphData")) || {};
+        allData[userEmail] = data;
+        localStorage.setItem("graphData", JSON.stringify(allData));
+      }
+
+      /* ================= CHARTS ================= */
+      const ctxExpenses = document.getElementById('expensesChart').getContext('2d');
+      const ctxSalary = document.getElementById('salaryChart').getContext('2d');
+      const ctxSavings = document.getElementById('savingsChart').getContext('2d');
+
+      const textColor = localStorage.getItem("theme") === "dark" ? "#f5f5f5" : "#333";
+
+      const expensesChart = new Chart(ctxExpenses, {
+        type: 'pie',
+        data: { labels: [], datasets: [{ label: 'Expenses', data: [], backgroundColor: [] }] },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
+        }
+      });
+
+      const salaryChart = new Chart(ctxSalary, {
+        type: 'bar',
+        data: {
+          labels: [], datasets: [
+            { label: 'Salary', data: [], backgroundColor: '#1abc9c' },
+            { label: 'Savings', data: [], backgroundColor: '#16a085' },
+            { label: 'Balance (Salary - Expenses)', data: [], backgroundColor: '#3498db' }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { color: textColor } },
+            x: { ticks: { color: textColor } }
+          },
+          plugins: { legend: { labels: { color: textColor } } }
+        }
+      });
+
+      const savingsChart = new Chart(ctxSavings, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Savings',
+            data: [],
+            borderColor: '#e67e22',
+            fill: true,
+            backgroundColor: 'rgba(230,126,34,0.2)'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { color: textColor } },
+            x: { ticks: { color: textColor } }
+          },
+          plugins: { legend: { labels: { color: textColor } } }
+        }
+      });
+
+      /* ================= LOAD CHART DATA ================= */
+      function loadCharts() {
+        const data = getUserData();
+        const selectedMonth = document.getElementById("expenses-month")?.value || "All";
+
+        // Expenses
+        let expensesToShow = data.expenses;
+        if (selectedMonth !== "All") {
+          expensesToShow = data.expenses.filter(e => e.month === selectedMonth);
+        }
+
+        expensesChart.data.labels = expensesToShow.map(e => e.name);
+        expensesChart.data.datasets[0].data = expensesToShow.map(e => e.amount);
+        expensesChart.data.datasets[0].backgroundColor = expensesToShow.map((_, i) =>
+          ['#1abc9c', '#16a085', '#f39c12', '#e74c3c', '#3498db', '#9b59b6'][i % 6]
+        );
+        expensesChart.update();
+
+        // Salary vs Savings
+        salaryChart.data.labels = data.salaries.map(s => s.month);
+        salaryChart.data.datasets[0].data = data.salaries.map(s => s.salary);
+        salaryChart.data.datasets[1].data = data.salaries.map(s => s.savings);
+        salaryChart.data.datasets[2].data = data.salaries.map(s => s.salary - totalExpensesForMonth(data, s.month));
+        salaryChart.update();
+
+        // Savings line chart
+        savingsChart.data.labels = data.salaries.map(s => s.month);
+        savingsChart.data.datasets[0].data = data.salaries.map(s => s.savings);
+        savingsChart.update();
+      }
+
+      function totalExpensesForMonth(data, month) {
+        return data.expenses.filter(e => e.month === month).reduce((sum, e) => sum + e.amount, 0);
+      }
+
+      /* ================= ADD DATA ================= */
+      function addExpense() {
+        const name = document.getElementById("expense-name").value;
+        const amount = Number(document.getElementById("expense-amount").value);
+        const month = document.getElementById("expense-month").value || "General";
+
+        if (!name || !amount || !month) { alert("Please enter all fields!"); return; }
+
+        const data = getUserData();
+        data.expenses.push({ name, amount, month });
+        saveUserData(data);
+        loadCharts();
+
+        // Notification
+        const notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+        notifications.push({ message: `Added new expense: ${name} ₹${amount}`, time: new Date().toLocaleString() });
+        localStorage.setItem("notifications", JSON.stringify(notifications));
+        updateNotifications();
+
+        document.getElementById("expense-name").value = "";
+        document.getElementById("expense-amount").value = "";
+        document.getElementById("expense-month").value = "";
+      }
+
+      function addSalary() {
+        const month = document.getElementById("salary-month").value;
+        const salary = Number(document.getElementById("salary-amount").value);
+        const savings = Number(document.getElementById("savings-amount").value);
+
+        if (!month || !salary || !savings) { alert("Please fill all fields!"); return; }
+
+        const data = getUserData();
+        data.salaries.push({ month, salary, savings });
+        saveUserData(data);
+        loadCharts();
+
+        document.getElementById("salary-month").value = "";
+        document.getElementById("salary-amount").value = "";
+        document.getElementById("savings-amount").value = "";
+      }
+
+      /* ================= NOTIFICATIONS ================= */
+      function updateNotifications() {
+        const notifications = JSON.parse(localStorage.getItem("notifications")) || [];
+        document.getElementById("notifCount").textContent = notifications.length;
+      }
+
+      /* ================= RESET DATA ================= */
+      function resetData() {
+        if (!confirm("Are you sure you want to clear all your data?")) return;
+
+        const allData = JSON.parse(localStorage.getItem("graphData")) || {};
+        delete allData[userEmail];
+        localStorage.setItem("graphData", JSON.stringify(allData));
+
+        expensesChart.data.labels = [];
+        expensesChart.data.datasets[0].data = [];
+        salaryChart.data.labels = [];
+        salaryChart.data.datasets.forEach(ds => ds.data = []);
+        savingsChart.data.labels = [];
+        savingsChart.data.datasets[0].data = [];
+
+        expensesChart.update();
+        salaryChart.update();
+        savingsChart.update();
+
+        alert("All your finance data has been cleared!");
+      }
+
+      /* ================= INIT ================= */
+      loadCharts();
+      updateNotifications();
+    </script>
+    <script src="common.js"></script>
+    <script src="i18n.js"></script>
+
+</body>
+
+</html>

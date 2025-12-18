@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debt Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ===== Base Styles (same as your original code) ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background: #f0f4f8;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: #1632a0;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            margin: 10px 0;
+            display: block;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .sidebar a:hover {
+            background: #0f2273;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, #5978c8, #0a217b);
+            padding: 15px 20px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            color: #1632a0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            color: #34495e;
+            min-width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 10px;
+            z-index: 1000;
+        }
+
+        .profile-dropdown span {
+            display: block;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown button.dropdown-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .profile-dropdown button.dropdown-btn:hover {
+            background: #c0392b;
+        }
+
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: #34495e;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: #1632a0;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #16a085;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #1632a0;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        tfoot td {
+            font-weight: bold;
+            background: #e6f7ff;
+        }
+
+        tr.status-Due\ Soon {
+            background: #fff3cd;
+        }
+
+        tr.status-Overdue {
+            background: #f8d7da;
+        }
+
+        tr.status-Paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        body.dark {
+            background: #121212;
+            color: #f5f5f5;
+        }
+
+        body.dark .sidebar {
+            background: #1e1e2f;
+        }
+
+        body.dark .sidebar a {
+            background: #333;
+            color: #f5f5f5;
+        }
+
+        body.dark .sidebar a:hover {
+            background: #821a1a;
+        }
+
+        body.dark .topbar {
+            background: linear-gradient(90deg, #0d3a2f, #0d1a5e);
+        }
+
+        body.dark .card {
+            background: #1f1f1f;
+            color: #f5f5f5;
+        }
+
+        body.dark table {
+            background: #1f1f1f;
+            color: #f5f5f5;
+        }
+
+        body.dark th {
+            background: #0d3a2f;
+            color: #f5f5f5;
+        }
+
+        body.dark tr:nth-child(even) {
+            background: #2c2c2c;
+        }
+
+        body.dark tr:hover {
+            background: #333;
+        }
+
+        body.dark .profile-dropdown {
+            background: #2c2c2c;
+            color: #f5f5f5;
+        }
+
+        body.dark .profile-dropdown button.dropdown-btn {
+            background: #c0392b;
+        }
+
+        body.dark .profile-dropdown button.dropdown-btn:hover {
+            background: #a93226;
+        }
+
+        /* ===== Debt Modal Styles ===== */
+        #debtModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s;
+        }
+
+        #debtModalContent {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50px);
+            animation: slideDown 0.3s forwards;
+        }
+
+        #debtModal h2 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #debtModal ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        #debtModal li {
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        #debtModal li.overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        #debtModal li.duesoon {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        #debtModal button {
+            display: block;
+            margin: 0 auto;
+            background: #1632a0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #debtModal button:hover {
+            background: #16a085;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .debt-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        #debtModalList {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 15px 0;
+        }
+
+        #debtModalList li {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid;
+            border-radius: 6px;
+            background: #f9f9f9;
+            font-weight: 500;
+        }
+
+        #debtModalList li.duesoon {
+            border-color: #f1c40f;
+        }
+
+        #debtModalList li.overdue {
+            border-color: #e74c3c;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            background: #1abc9c;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-content button:hover {
+            background: #16a085;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Finance Dashboard</h2>
+        <a href="dashboard.html">🏠 Dashboard</a>
+        <a href="transactions.html">💳 Transactions</a>
+        <a href="debt_tracker.html">💰 Debt Tracker</a>
+        <a href="budget_planner.html">📊 Budget Planner</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="index.html" id="logout">🚪 Logout</a>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>💰 Debt Tracker</div>
+            <div class="user-profile" id="profile">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <span id="dropdown-name">User Name</span>
+                    <span id="dropdown-email">user@example.com</span>
+                    <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
+                    <button onclick="clearDebts()" class="dropdown-btn">🧹 Clear All Debts</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Add Debt Card -->
+            <div class="card">
+                <h3>➕ Add New Debt</h3>
+                <div class="form-group">
+                    <label for="debt-type">Debt Type</label>
+                    <select id="debt-type" onchange="toggleOtherDebtType()">
+                        <option value="">--Select Debt Type--</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Loan">Loan</option>
+                        <option value="Mortgage">Mortgage</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="other-debt-type" placeholder="Enter debt type"
+                        style="display:none; margin-top:6px;">
+                </div>
+                <div class="form-group">
+                    <label for="debt-name">Debt Name</label>
+                    <select id="debt-name" onchange="toggleOtherDebtName()">
+                        <option value="">--Select Debt Name--</option>
+                        <option value="ICICI Credit Card">ICICI Credit Card</option>
+                        <option value="HDFC Credit Card">HDFC Credit Card</option>
+                        <option value="Personal Loan">Personal Loan</option>
+                        <option value="Mortgage Loan">Mortgage Loan</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="other-debt-name" placeholder="Enter debt name"
+                        style="display:none; margin-top:6px;">
+                </div>
+                <div class="form-group">
+                    <label for="debt-amount">Amount</label>
+                    <input type="number" id="debt-amount" placeholder="Enter amount">
+                </div>
+                <div class="form-group">
+                    <label for="debt-month">Month</label>
+                    <select id="debt-month">
+                        <option value="">--Select Month--</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="debt-due">Due Date</label>
+                    <input type="date" id="debt-due">
+                </div>
+                <button onclick="addDebt()">Add Debt</button>
+            </div>
+
+            <!-- Debt Chart -->
+            <div class="card">
+                <h3>📊 Debt Chart</h3>
+                <canvas id="debtChart"></canvas>
+            </div>
+
+            <!-- Debt Table -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3>💳 Debts Overview</h3>
+                <label for="monthFilter">Filter by Month:</label>
+                <select id="monthFilter">
+                    <option value="all">All Months</option>
+                </select>
+                <table id="debtTable">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Total</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td id="totalDebt">0</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Debt Notification Modal ===== -->
+    <div id="debtModal" class="debt-modal">
+        <div class="modal-content">
+            <h2>⚠️ Debt Notifications</h2>
+            <ul id="debtModalList"></ul>
+            <button onclick="closeDebtModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== Initialization =====
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
+        });
+
+        const storedUser = localStorage.getItem("user");
+        if (!storedUser) window.location.href = "index.html";
+        const user = JSON.parse(storedUser);
+        const userEmail = user.email;
+        document.getElementById("dropdown-name").textContent = user.name || "User";
+        document.getElementById("dropdown-email").textContent = user.email || "user@example.com";
+        document.getElementById("user-avatar").textContent = (user.name ? user.name[0] : "U").toUpperCase();
+
+        document.getElementById("logout").addEventListener("click", () => { localStorage.removeItem("user"); window.location.href = "index.html"; });
+        const profile = document.getElementById("profile");
+        const dropdown = document.getElementById("profile-dropdown");
+        profile.addEventListener("click", () => dropdown.classList.toggle("show"));
+        window.addEventListener("click", (e) => { if (!profile.contains(e.target)) dropdown.classList.remove("show"); });
+
+        const userDebtsKey = `debts_${userEmail}`;
+        let debts = JSON.parse(localStorage.getItem(userDebtsKey)) || [];
+
+        function toggleOtherDebtType() { document.getElementById("other-debt-type").style.display = document.getElementById("debt-type").value === "Other" ? "block" : "none"; }
+        function toggleOtherDebtName() { document.getElementById("other-debt-name").style.display = document.getElementById("debt-name").value === "Other" ? "block" : "none"; }
+
+        function addDebt() {
+            const typeSelect = document.getElementById("debt-type").value;
+            const typeInput = document.getElementById("other-debt-type").value;
+            const type = typeSelect === "Other" ? typeInput : typeSelect;
+
+            const nameSelect = document.getElementById("debt-name").value;
+            const nameInput = document.getElementById("other-debt-name").value;
+            const name = nameSelect === "Other" ? nameInput : nameSelect;
+
+            const amount = Number(document.getElementById("debt-amount").value);
+            const month = document.getElementById("debt-month").value;
+            const dueDate = document.getElementById("debt-due").value;
+
+            if (!type || !name || !amount || !month || !dueDate) { alert("Please fill all fields!"); return; }
+
+            debts.push({ type, name, amount, month, dueDate, status: "Pending" });
+            localStorage.setItem(userDebtsKey, JSON.stringify(debts));
+            renderTable();
+            renderChart();
+            showDebtModal();
+
+            document.getElementById("debt-type").value = ""; document.getElementById("other-debt-type").value = ""; document.getElementById("other-debt-type").style.display = "none";
+            document.getElementById("debt-name").value = ""; document.getElementById("other-debt-name").value = ""; document.getElementById("other-debt-name").style.display = "none";
+            document.getElementById("debt-amount").value = ""; document.getElementById("debt-month").value = ""; document.getElementById("debt-due").value = "";
+        }
+
+        const tbody = document.querySelector("#debtTable tbody");
+        const monthFilter = document.getElementById("monthFilter");
+
+        function renderTable() {
+            tbody.innerHTML = ""; let total = 0;
+            const currentSelection = monthFilter.value;
+            const uniqueMonths = [...new Set(debts.map(d => d.month))];
+            monthFilter.innerHTML = '<option value="all">All Months</option>';
+            uniqueMonths.forEach(m => { const option = document.createElement("option"); option.value = m; option.textContent = m; monthFilter.appendChild(option); });
+            monthFilter.value = [...monthFilter.options].some(opt => opt.value === currentSelection) ? currentSelection : "all";
+
+            const selectedMonth = monthFilter.value;
+            const filteredDebts = selectedMonth === "all" ? debts : debts.filter(d => d.month === selectedMonth);
+            const today = new Date();
+
+            filteredDebts.forEach((d, index) => {
+                const dueDateObj = new Date(d.dueDate);
+                if (d.status !== "Paid") {
+                    const diffDays = Math.ceil((dueDateObj - today) / (1000 * 60 * 60 * 24));
+                    if (diffDays < 0) d.status = "Overdue";
+                    else if (diffDays <= 2) d.status = "Due Soon";
+                    else d.status = "Pending";
+                }
+
+                tbody.innerHTML += `<tr class="status-${d.status.replace(' ', '\\ ')}">
+                    <td>${d.month}</td><td>${d.type}</td><td>${d.name}</td><td>${d.amount}</td><td>${d.dueDate}</td>
+                    <td class="status-${d.status.replace(' ', '\\ ')}">${d.status}</td>
+                    <td>${d.status !== "Paid" ? `<button onclick="markAsPaid(${index})">Mark as Paid</button>` : "✅"}</td>
+                </tr>`;
+                if (d.status !== "Paid") total += d.amount;
+            });
+            document.getElementById("totalDebt").textContent = total;
+            localStorage.setItem(userDebtsKey, JSON.stringify(debts));
+        }
+
+        monthFilter.addEventListener("change", () => { renderTable(); renderChart(); });
+
+        function markAsPaid(index) { debts[index].status = "Paid"; renderTable(); renderChart(); }
+
+        function clearDebts() { if (confirm("Clear all debts?")) { debts = []; renderTable(); renderChart(); } }
+
+        const ctx = document.getElementById("debtChart").getContext("2d");
+        let debtChart;
+        function renderChart() {
+            const chartData = {};
+            debts.forEach(d => { chartData[d.month] = (chartData[d.month] || 0) + (d.status !== "Paid" ? d.amount : 0); });
+            const months = Object.keys(chartData); const amounts = Object.values(chartData);
+            if (debtChart) debtChart.destroy();
+            debtChart = new Chart(ctx, { type: 'bar', data: { labels: months, datasets: [{ label: 'Debt Amount', data: amounts, backgroundColor: '#1abc9c' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+        }
+
+        // ===== Debt Modal Notification =====
+        function showDebtModal() {
+            const today = new Date();
+            const list = document.getElementById("debtModalList");
+            list.innerHTML = "";
+            let hasNotifications = false;
+
+            debts.forEach(d => {
+                if (d.status !== "Paid") {
+                    const dueDate = new Date(d.dueDate);
+                    const diff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    if (diff < 0) { list.innerHTML += `<li class="overdue">${d.name} is Overdue!</li>`; hasNotifications = true; }
+                    else if (diff <= 2) { list.innerHTML += `<li class="duesoon">${d.name} is Due Soon!</li>`; hasNotifications = true; }
+                }
+            });
+
+            if (hasNotifications) document.getElementById("debtModal").style.display = "flex";
+        }
+
+        function closeDebtModal() { document.getElementById("debtModal").style.display = "none"; }
+
+        renderTable();
+        renderChart();
+        showDebtModal();
+    </script>
+    <script src="common.js"></script>
+
+</body>
+
+</html>
