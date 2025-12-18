@@ -12,12 +12,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ================== SERVE FRONTEND ==================
-app.use(express.static(path.join(__dirname, "../frontend")));
-
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/index.html"));
+    res.json({ message: "Backend is running successfully 🚀" });
 });
+
 
 // ================== DATABASE ==================
 const db = new sqlite3.Database(path.join(__dirname, "users.db"), (err) => {
